@@ -1,126 +1,192 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
+  TextField,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
+  Typography,
   Box,
+  FormHelperText,
 } from "@mui/material";
-import { addProduct } from "../../store/productSlice";
+import { RootState } from "../../store/store";
+import { editProduct, removeProduct } from "../../store/productSlice";
+import NavBar from "../../components/NavBar/NavBar";
 
-const ProductDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const ProductDetailsPage: React.FC = () => {
+  const { productId } = useParams();
   const dispatch = useDispatch();
-  const product = useSelector((state) =>
-    state.products.find((p) => p.id === id)
-  );
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [updatedProduct, setUpdatedProduct] = useState(product);
+  const [categoryError, setCategoryError] = useState("");
 
-  const handleEditOpen = () => setOpen(true);
-  const handleEditClose = () => setOpen(false);
+  const categories = useSelector((state: RootState) => state.categories);
+  const product = useSelector((state: RootState) =>
+    state.products.products.find((product) => product.id === Number(productId))
+  );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedProduct({ ...updatedProduct, [name]: value });
+  const [formValues, setFormValues] = useState({
+    name: product?.name || "",
+    description: product?.description || "",
+    category: product?.category || "",
+    quantity: product?.quantity.toString() || "0",
+    price: product?.price || 0,
+  });
+
+  useEffect(() => {
+    if (
+      !categories?.some(
+        (cat) => cat.name.toLowerCase() === formValues.category.toLowerCase()
+      )
+    ) {
+      setCategoryError(
+        "Эта категория не существует. Выберите существующую категорию."
+      );
+    } else {
+      setCategoryError("");
+    }
+  }, [formValues.category, categories]);
+
+  if (!product) {
+    return <Typography>Товар не найден</Typography>;
+  }
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormValues({
+      ...formValues,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleEditSubmit = () => {
-    dispatch(addProduct(updatedProduct));
-    handleEditClose();
+  const handleSubmit = () => {
+    if (categoryError) {
+      alert(categoryError);
+      return;
+    }
+
+    const updatedProduct = {
+      ...formValues,
+      quantity: Number(formValues.quantity),
+      price: Number(formValues.price),
+    };
+
+    dispatch(
+      editProduct({
+        id: Number(productId),
+        ...updatedProduct,
+        unit: "",
+        image: "",
+      })
+    );
+    handleClose();
   };
 
   const handleDelete = () => {
-    dispatch(deleteProduct(id));
-    navigate("/products");
+    dispatch(removeProduct(Number(productId)));
+    navigate("/");
   };
 
-  if (!product) {
-    return <div>Продукт не найден</div>;
-  }
+  const goToMainPage = () => {
+    navigate("/");
+  };
 
   return (
-    <Box mt={4} p={2}>
-      <h2>Детали товара</h2>
-      <p>Название: {product.name}</p>
-      <p>Описание: {product.description}</p>
-      <p>Категория: {product.category}</p>
-      <p>Количество: {product.quantity}</p>
-      <p>Цена: {product.price}</p>
+    <>
+      <NavBar />
+      <Box sx={{ p: 3 }} marginTop="80px">
+        <Typography variant="h4">{product.name}</Typography>
+        <Typography>Описание: {product.description}</Typography>
+        <Typography>Категория: {product.category}</Typography>
+        <Typography>Количество: {product.quantity}</Typography>
+        <Typography>Цена: {product.price}</Typography>
 
-      <Button variant="contained" color="primary" onClick={handleEditOpen}>
-        Редактировать товар
-      </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleDelete}
-        style={{ marginLeft: "10px" }}
-      >
-        Удалить товар
-      </Button>
+        <Button variant="contained" color="primary" onClick={handleOpen}>
+          Редактировать товар
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleDelete}
+          style={{ marginLeft: "20px" }}
+        >
+          Удалить товар
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={goToMainPage}
+          style={{ marginLeft: "20px" }}
+        >
+          Назад
+        </Button>
 
-      <Dialog open={open} onClose={handleEditClose}>
-        <DialogTitle>Редактировать товар</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Название"
-            name="name"
-            onChange={handleChange}
-            value={updatedProduct.name}
-            fullWidth
-            required
-          />
-          <TextField
-            label="Описание"
-            name="description"
-            onChange={handleChange}
-            value={updatedProduct.description}
-            fullWidth
-            required
-          />
-          <TextField
-            label="Категория"
-            name="category"
-            onChange={handleChange}
-            value={updatedProduct.category}
-            fullWidth
-          />
-          <TextField
-            label="Количество"
-            name="quantity"
-            onChange={handleChange}
-            value={updatedProduct.quantity}
-            fullWidth
-            required
-          />
-          <TextField
-            label="Цена"
-            name="price"
-            onChange={handleChange}
-            value={updatedProduct.price}
-            fullWidth
-            required
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditClose}>Отмена</Button>
-          <Button onClick={handleEditSubmit} color="primary">
-            Сохранить
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Редактировать продукт</DialogTitle>
+
+          <DialogContent>
+            <TextField
+              label="Название"
+              name="name"
+              onChange={handleChange}
+              fullWidth
+              value={formValues.name}
+              required
+            />
+            <TextField
+              label="Описание"
+              name="description"
+              onChange={handleChange}
+              fullWidth
+              value={formValues.description}
+              required
+            />
+            <TextField
+              label="Категория"
+              name="category"
+              onChange={handleChange}
+              fullWidth
+              value={formValues.category}
+              required
+              error={!!categoryError}
+            />
+            {categoryError && (
+              <FormHelperText error>{categoryError}</FormHelperText>
+            )}
+            <TextField
+              label="Количество"
+              name="quantity"
+              onChange={handleChange}
+              fullWidth
+              value={formValues.quantity}
+              required
+              type="number"
+            />
+            <TextField
+              label="Цена"
+              name="price"
+              onChange={handleChange}
+              fullWidth
+              value={formValues.price}
+              required
+              type="number"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Отмена</Button>
+            <Button onClick={handleSubmit} color="primary">
+              Сохранить
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 
-export default ProductDetails;
-
-function deleteProduct(id: string | undefined): any {
-  throw new Error("Function not implemented.");
-}
+export default ProductDetailsPage;

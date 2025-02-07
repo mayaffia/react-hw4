@@ -1,6 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Product, ProductState } from '../types/types';
 
-const initialState = {
+
+
+const initialState: ProductState = {
   products: [
     {
     "id": 1,
@@ -9,7 +12,8 @@ const initialState = {
     "category": "Категория 1",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 2,
@@ -18,7 +22,8 @@ const initialState = {
     "category": "Категория 2",
     "quantity": 10,
     "unit": "кг",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 3,
@@ -27,7 +32,8 @@ const initialState = {
     "category": "Категория 3",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 4,
@@ -36,7 +42,8 @@ const initialState = {
     "category": "Категория 1",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 5,
@@ -45,7 +52,8 @@ const initialState = {
     "category": "Категория 4",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 6,
@@ -54,7 +62,8 @@ const initialState = {
     "category": "Категория 2",
     "quantity": 10,
     "unit": "кг",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 7,
@@ -63,7 +72,8 @@ const initialState = {
     "category": "Категория 1",
     "quantity": 10,
     "unit": "л",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 8,
@@ -72,7 +82,8 @@ const initialState = {
     "category": "Категория 3",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 9,
@@ -81,7 +92,8 @@ const initialState = {
     "category": "Категория 1",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   },
   {
     "id": 10,
@@ -90,23 +102,39 @@ const initialState = {
     "category": "Категория 4",
     "quantity": 10,
     "unit": "шт",
-    "image": ""
+    "image": "",
+    "price": 100
   }
 ]
 };
+
 
 const productSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    addProduct: (state, action) => {
+    addProduct: (state, action: PayloadAction<Product>) => {
+      console.log(state.products)
       state.products.push(action.payload);
     },
-    removeProduct: (state, action) => {
+    editProduct: (state, action: PayloadAction<Product>) => {
+      console.log(state.products)
+      console.log(state)
+      const index = state.products.findIndex(product => product.id === action.payload.id);
+      console.log(index)
+      if (index !== -1) {
+        state.products[index] = {
+          ...state.products[index],
+          ...action.payload
+        };
+      }
+    },
+    removeProduct: (state, action: PayloadAction<number>) => {
+      console.log(state.products)
       state.products = state.products.filter(product => product.id !== action.payload);
     }
   }
 });
 
-export const { addProduct, removeProduct } = productSlice.actions;
+export const { addProduct, editProduct, removeProduct } = productSlice.actions;
 export default productSlice.reducer;

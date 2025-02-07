@@ -1,17 +1,17 @@
-import * as React from 'react';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import * as React from "react";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
 
-import AppBar from '@mui/material/AppBar';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import AppBar from "@mui/material/AppBar";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
-import { useState } from 'react';
-import { NavBarProps } from '../../types/types';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { NavBarProps } from "../../types/types";
+import { useNavigate } from "react-router-dom";
 
 export default function NavBar({ handleDrawerOpen }: NavBarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -27,14 +27,23 @@ export default function NavBar({ handleDrawerOpen }: NavBarProps) {
   const navigate = useNavigate();
 
   const goToProfile = () => {
-    navigate('/userProfile');
+    navigate("/userProfile");
   };
 
+  const goToProducts = () => {
+    navigate("/");
+  };
+
+  const goToCategories = () => {
+    navigate("/categories");
+  };
 
   return (
-    <AppBar position="fixed" sx={{
-      backgroundColor: '#161a1d', 
-    }}
+    <AppBar
+      position="fixed"
+      sx={{
+        backgroundColor: "#161a1d",
+      }}
     >
       <Toolbar>
         <IconButton
@@ -43,12 +52,25 @@ export default function NavBar({ handleDrawerOpen }: NavBarProps) {
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
-          onClick={handleDrawerOpen} 
+          onClick={handleDrawerOpen}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1 }}
+          onClick={goToProducts}
+        >
           Товары
+        </Typography>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1 }}
+          onClick={goToCategories}
+        >
+          Категории
         </Typography>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Склады
@@ -56,38 +78,37 @@ export default function NavBar({ handleDrawerOpen }: NavBarProps) {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           О системе
         </Typography>
-        
-          <div>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={goToProfile}>Profile</MenuItem>
-            </Menu>
-          </div>
-        
+
+        <div>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenu}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={goToProfile}>Profile</MenuItem>
+          </Menu>
+        </div>
       </Toolbar>
     </AppBar>
-  )
+  );
 }

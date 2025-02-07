@@ -13,7 +13,6 @@ import { useState } from 'react';
 import { Stack, TextField, FormControlLabel, Checkbox, Select, Button, InputAdornment } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import NavBar from '../NavBar/NavBar';
-import { MainContentProps } from '../../types/types';
 import ProductList from '../ProductList/ProductList';
 
 
@@ -46,7 +45,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function MainContent({darkTheme} : MainContentProps) {
+export default function MainContent() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
 
@@ -179,21 +178,11 @@ export default function MainContent({darkTheme} : MainContentProps) {
             <MenuItem value="Категория 5">Категория 5</MenuItem>
           </Select>
 
-          <Button variant="contained" onClick={handleFilterSubmit} sx={{
-            backgroundColor: darkTheme? '#f5f5f5' : '#161a1d',
-          }}>
+          <Button variant="contained" onClick={handleFilterSubmit} >
             Выполнить поиск
           </Button>
 
-          <Button variant="outlined" onClick={handleResetFilters} sx={{
-            color: darkTheme ? '#f5f5f5' : '#161a1d',
-            borderColor: darkTheme ? '#f5f5f5' : '#161a1d',
-            '&:hover': {
-              borderColor: darkTheme ? '#bbbbbb' : '#000',
-              backgroundColor: darkTheme ? 'rgba(255, 255, 255, 0.08)' : 'rgba(22, 26, 29, 0.08)',
-            },
-          }}
-          >
+          <Button variant="outlined" onClick={handleResetFilters} >
             Сбросить фильтры
           </Button>
         </Stack>
@@ -203,7 +192,7 @@ export default function MainContent({darkTheme} : MainContentProps) {
 
       <Main open={open}>
         <DrawerHeader />
-        <ProductList category={submittedFilters.category} name={submittedFilters.productName} inStock={submittedFilters.inStock} darkTheme={darkTheme} />
+        <ProductList category={submittedFilters.category} name={submittedFilters.productName} inStock={submittedFilters.inStock} />
       </Main>
     </Box>
   );

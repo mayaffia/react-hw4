@@ -1,36 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Pagination } from "@mui/material";
+import { Pagination } from "@mui/material";
 import { Product, ProductListProps } from "../../types/types";
-import { useSelector, useDispatch } from "react-redux";
-import { removeProduct } from "../../store/productSlice";
+import { useSelector} from "react-redux";
 import ProductCard from "../../components/ProductCard/ProductCard";
 import AddProductModal from "../../components/AddProductModal/AddProductModal";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../../store/store";
 
 export default function ProductList({
   category,
   name,
   inStock,
-  darkTheme,
 }: ProductListProps) {
-  const products = useSelector((state) => state.products.products);
-  const dispatch = useDispatch();
-
-  const handleRemove = (id) => {
-    dispatch(removeProduct(id));
-  };
-
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  const handleCardClick = (product: Product) => {
-    setSelectedProduct(product);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedProduct(null);
-  };
-
+  const products = useSelector((state: RootState) => state.products.products);
+ 
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
+
+  const navigate = useNavigate();
+  const handleCardClick = (product: Product) => {
+    navigate(`/products/${product.id}`);
+  };
 
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
@@ -39,23 +29,36 @@ export default function ProductList({
     setCurrentPage(value);
   };
 
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
 
-  const filtertedProducts = products.filter((product) => {
-    const matchName = name
-      ? product.name.toLowerCase().includes(name.toLowerCase())
-      : true;
-    const matchStock = inStock ? product.quantity > 0 : true;
-    const matchCategory = category ? product.category === category : true;
+  useEffect(() => {
+    const filterProducts = () => {
+      const filtered = products.filter((product) => {
+        const matchName = name
+          ? product.name.toLowerCase().includes(name.toLowerCase())
+          : true;
+        const matchStock = inStock ? product.quantity > 0 : true;
+        const matchCategory = category ? product.category === category : true;
 
-    return matchName && matchStock && matchCategory;
-  });
+        return matchName && matchStock && matchCategory;
+      });
 
-  const currentProducts = filtertedProducts.slice(
+      setFilteredProducts(filtered);
+    };
+
+    filterProducts();
+  }, [products, name, inStock, category]);
+
+  const currentProducts = filteredProducts.slice(
     indexOfFirstProduct,
     indexOfLastProduct
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredProducts]);
 
   return (
     <>
@@ -83,7 +86,7 @@ export default function ProductList({
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: darkTheme ? "#161a1d" : "white",
+            backgroundColor: "white",
             padding: "10px",
             zIndex: 1000,
             display: "flex",
@@ -91,7 +94,7 @@ export default function ProductList({
           }}
         >
           <Pagination
-            count={Math.ceil(filtertedProducts.length / productsPerPage)}
+            count={Math.ceil(filteredProducts.length / productsPerPage)}
             page={currentPage}
             onChange={handlePageChange}
             shape="rounded"

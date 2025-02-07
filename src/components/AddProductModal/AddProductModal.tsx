@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Dialog,
@@ -7,8 +7,10 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  FormHelperText,
 } from "@mui/material";
 import { addProduct } from "../../store/productSlice";
+import { RootState } from "../../store/store";
 
 const AddProductModal = () => {
   const [open, setOpen] = useState(false);
@@ -19,20 +21,60 @@ const AddProductModal = () => {
     quantity: "",
     price: "",
   });
+  const [categoryError, setCategoryError] = useState("");
+  const [quantityError, setQuantityError] = useState("");
+  const [priceError, setPriceError] = useState("");
+
   const dispatch = useDispatch();
+  const categories = useSelector((state: RootState) => state.categories);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
+  const handleClose = () => {
+    setOpen(false);
+    setNewProduct({
+      name: "",
+      description: "",
+      category: "",
+      quantity: "",
+      price: "",
+    });
+    setCategoryError("");
+    setQuantityError("");
+    setPriceError("");
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setNewProduct({ ...newProduct, [name]: value });
+
+    if (name === "category") {
+      setCategoryError("");
+    }
   };
 
   const handleSubmit = () => {
-    const { name, description, quantity, price } = newProduct;
+    const { name, description, category, quantity, price } = newProduct;
+
+    const categoryExists = categories.some(
+      (cat) => cat.name.toLowerCase() === category.toLowerCase()
+    );
+
+    if (!categoryExists) {
+      setCategoryError(
+        "Эта категория не существует. Пожалуйста, выберите существующую категорию."
+      );
+      return;
+    }
+
+    if (!quantity || !price) {
+      alert("Пожалуйста, заполните все обязательные поля.");
+      return;
+    }
+
     if (name && description && quantity && price) {
-      const id = Math.random().toString(36).substr(2, 9);
+      const id = Math.random().toString(36).substr(2, 9); ///////&&&&&&&&&
       dispatch(addProduct({ ...newProduct, id }));
       handleClose();
     } else {
@@ -63,6 +105,7 @@ const AddProductModal = () => {
             onChange={handleChange}
             fullWidth
             required
+            value={newProduct.name}
           />
           <TextField
             label="Описание"
@@ -70,19 +113,29 @@ const AddProductModal = () => {
             onChange={handleChange}
             fullWidth
             required
+            value={newProduct.description}
           />
           <TextField
             label="Категория"
             name="category"
             onChange={handleChange}
             fullWidth
+            required
+            value={newProduct.category}
+            error={!!categoryError}
           />
+          {categoryError && (
+            <FormHelperText error>{categoryError}</FormHelperText>
+          )}
           <TextField
             label="Количество"
             name="quantity"
             onChange={handleChange}
             fullWidth
             required
+            value={newProduct.quantity}
+            type="number"
+            error={!!quantityError}
           />
           <TextField
             label="Цена"
@@ -90,6 +143,9 @@ const AddProductModal = () => {
             onChange={handleChange}
             fullWidth
             required
+            value={newProduct.price}
+            type="number"
+            error={!!priceError}
           />
         </DialogContent>
         <DialogActions>

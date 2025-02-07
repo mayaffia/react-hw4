@@ -6,6 +6,11 @@ export interface Product {
     quantity: number,
     unit: string,
     image: string,
+    price: number
+}
+
+export interface ProductState {
+    products: Product[];
 }
 
 export interface ProductCardProps {
@@ -23,13 +28,19 @@ export interface ProductListProps {
     category: string;
     name: string;
     inStock: boolean;
-    darkTheme: boolean;
+    darkTheme?: boolean;
 }
 
 export interface NavBarProps {
-    handleDrawerOpen: () => void;
+    handleDrawerOpen?: () => void;
 }
 
 export interface MainContentProps {
-    darkTheme: boolean;
+    darkTheme?: boolean;
 }
+
+export interface Category {
+    id: string;
+    name: string;
+}
+
