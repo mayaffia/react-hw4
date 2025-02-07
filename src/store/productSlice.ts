@@ -114,14 +114,11 @@ const productSlice = createSlice({
   initialState,
   reducers: {
     addProduct: (state, action: PayloadAction<Product>) => {
-      console.log(state.products)
       state.products.push(action.payload);
     },
     editProduct: (state, action: PayloadAction<Product>) => {
-      console.log(state.products)
-      console.log(state)
       const index = state.products.findIndex(product => product.id === action.payload.id);
-      console.log(index)
+
       if (index !== -1) {
         state.products[index] = {
           ...state.products[index],
@@ -130,7 +127,6 @@ const productSlice = createSlice({
       }
     },
     removeProduct: (state, action: PayloadAction<number>) => {
-      console.log(state.products)
       state.products = state.products.filter(product => product.id !== action.payload);
     }
   }

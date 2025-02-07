@@ -74,7 +74,7 @@ const AddProductModal = () => {
     }
 
     if (name && description && quantity && price) {
-      const id = Math.random().toString(36).substr(2, 9); ///////&&&&&&&&&
+      const id = Math.random().toString(36).substr(2, 9);
       dispatch(addProduct({ ...newProduct, id }));
       handleClose();
     } else {
