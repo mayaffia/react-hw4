@@ -1,136 +1,91 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Product, ProductState } from '../types/types';
 
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { Product } from '../types/types';
 
+interface ProductListState {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+}
 
-const initialState: ProductState = {
-  products: [
-    {
-    "id": 1,
-    "name": "Продукт 1",
-    "description": "Это описание товара. Очень длинное прям очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень ",
-    "category": "Категория 1",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 2,
-    "name": "Продукт 2",
-    "description": "длинное описание чтобы проверить скроллинг в модалке \n ывагмыдшвоамжышоваломтыдвывагмыдшвоамжышова \n ломтыдволамдоывадмывагмыдшвоамжышоваломты \n дволамдоывадмывагмыдшвоамж\n ышоваломтыдволамдоывадмывагмыдшво\nамжышоваломтыдволамдоывламдоыва \n дмывагмыдшвоамжышоваломтыдволамдоывадмываг\n мыдшвоамжышоваломтыдволамдоывадмывагм\n ыдшвоамжышоваломтыдвола\n мдоывадмывагмыдшвоамжышовал\n омтыдволамдоывадмывагмыдшво\n амжышоваломтыдволамдоывадмывагмыд\n швоамжышоваломтыдволамдоывадмоламдоывадмо",
-    "category": "Категория 2",
-    "quantity": 10,
-    "unit": "кг",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 3,
-    "name": "Продукт 3",
-    "description": "Описание товара каоке-то",
-    "category": "Категория 3",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 4,
-    "name": "Продукт 4",
-    "description": "Описание товара 4",
-    "category": "Категория 1",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 5,
-    "name": "Продукт 5",
-    "description": "Описание товара 5",
-    "category": "Категория 4",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 6,
-    "name": "Продукт 6",
-    "description": "Описание товара 6",
-    "category": "Категория 2",
-    "quantity": 10,
-    "unit": "кг",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 7,
-    "name": "Продукт 7",
-    "description": "Описание товара 7",
-    "category": "Категория 1",
-    "quantity": 10,
-    "unit": "л",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 8,
-    "name": "Продукт 8",
-    "description": "Описание товара 8",
-    "category": "Категория 3",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 9,
-    "name": "Продукт 9",
-    "description": "Описание товара 9",
-    "category": "Категория 1",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  },
-  {
-    "id": 10,
-    "name": "Продукт 10",
-    "description": "Описание товара 10",
-    "category": "Категория 4",
-    "quantity": 10,
-    "unit": "шт",
-    "image": "",
-    "price": 100
-  }
-]
+const initialState: ProductListState = {
+  products: [],
+  loading: false,
+  error: null,
 };
 
-
-const productSlice = createSlice({
-  name: 'products',
-  initialState,
-  reducers: {
-    addProduct: (state, action: PayloadAction<Product>) => {
-      state.products.push(action.payload);
-    },
-    editProduct: (state, action: PayloadAction<Product>) => {
-      const index = state.products.findIndex(product => product.id === action.payload.id);
-
-      if (index !== -1) {
-        state.products[index] = {
-          ...state.products[index],
-          ...action.payload
-        };
-      }
-    },
-    removeProduct: (state, action: PayloadAction<number>) => {
-      state.products = state.products.filter(product => product.id !== action.payload);
-    }
-  }
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:3000/api',
 });
 
-export const { addProduct, editProduct, removeProduct } = productSlice.actions;
-export default productSlice.reducer;
+
+export const fetchProducts = createAsyncThunk('productList/fetchProducts', async () => {
+  const response = await axiosInstance.get<Product[]>('/products');
+  return response.data;
+});
+
+export const addProduct = createAsyncThunk(
+  'productList/addProduct',
+  async (newProduct) => {
+    console.log(newProduct)
+    const productPayload = {
+      name: newProduct.name,
+      description: newProduct.description,
+      categoryName: newProduct.category,
+      quantity: newProduct.quantity,
+      price: newProduct.price
+    };
+
+    const response = await axiosInstance.post<Product>('/products', productPayload);
+    console.log(response.data);
+    return response.data;
+  }
+);
+
+export const editProduct = createAsyncThunk('productList/editProduct', async (updatedProduct: Product) => {
+  const response = await axiosInstance.put<Product>(`/products/${updatedProduct.id}`, updatedProduct);
+  return response.data;
+});
+
+export const deleteProduct = createAsyncThunk('productList/deleteProduct', async (id: number) => {
+  await axiosInstance.delete(`/products/${id}`);
+  return id;
+});
+
+const productListSlice = createSlice({
+  name: 'productList',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
+        state.loading = false;
+        state.products = action.payload;
+        console.log(state.products);
+        console.log(action.payload);
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to load products';
+      })
+      .addCase(addProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.products.push(action.payload);
+      })
+      .addCase(editProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        const index = state.products.findIndex(product => product._id === action.payload.id);
+        if (index !== -1) {
+          state.products[index] = action.payload;
+        }
+      })
+      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<number>) => {
+        state.products = state.products.filter(product => product._id !== action.payload);
+      });
+  },
+});
+
+export default productListSlice.reducer;

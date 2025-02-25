@@ -13,8 +13,9 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { RootState } from "../../store/store";
-import { editProduct, removeProduct } from "../../store/productSlice";
+import { editProduct, deleteProduct, fetchProducts } from "../../store/productSlice";
 import NavBar from "../../components/NavBar/NavBar";
+import { fetchCategories } from "../../store/categorySlice";
 
 const ProductDetailsPage: React.FC = () => {
   const { productId } = useParams();
@@ -23,7 +24,12 @@ const ProductDetailsPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [categoryError, setCategoryError] = useState("");
 
-  const categories = useSelector((state: RootState) => state.categories);
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories())
+  }, [dispatch]);
+
+  const categories = useSelector((state: RootState) => state.categories.categories);
   const product = useSelector((state: RootState) =>
     state.products.products.find((product) => product.id === Number(productId))
   );
@@ -88,7 +94,7 @@ const ProductDetailsPage: React.FC = () => {
   };
 
   const handleDelete = () => {
-    dispatch(removeProduct(Number(productId)));
+    dispatch(deleteProduct(Number(productId)));
     navigate("/");
   };
 

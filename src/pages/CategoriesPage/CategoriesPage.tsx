@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
@@ -17,13 +17,21 @@ import {
   addCategory,
   deleteCategory,
   editCategory,
+  fetchCategories,
 } from "../../store/categorySlice";
 import NavBar from "../../components/NavBar/NavBar";
 import { Category } from "../../types/types";
+import { fetchProducts } from "../../store/productSlice";
 
 const CategoriesPage: React.FC = () => {
   const dispatch = useDispatch();
-  const categories = useSelector((state: RootState) => state.categories);
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const categories = useSelector((state: RootState) => state.categories.categories);
   const products = useSelector((state: RootState) => state.products.products);
   const [open, setOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
@@ -72,7 +80,7 @@ const CategoriesPage: React.FC = () => {
       return;
     }
 
-    dispatch(deleteCategory(category.id));
+    dispatch(deleteCategory(category._id));
   };
 
   return (

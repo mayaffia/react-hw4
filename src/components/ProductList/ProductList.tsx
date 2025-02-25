@@ -1,18 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Pagination } from "@mui/material";
 import { Product, ProductListProps } from "../../types/types";
-import { useSelector} from "react-redux";
 import ProductCard from "../../components/ProductCard/ProductCard";
 import AddProductModal from "../../components/AddProductModal/AddProductModal";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../../store/productSlice";
+import { fetchCategories } from "../../store/categorySlice";
 
 export default function ProductList({
   category,
   name,
   inStock,
 }: ProductListProps) {
-  const products = useSelector((state: RootState) => state.products.products);
+
+
+const dispatch = useDispatch();
+
+useEffect(() => {
+  dispatch(fetchProducts());
+  dispatch(fetchCategories())
+}, [dispatch]);
+
+
+const products = useSelector((state: RootState) => state.products.products);
+
  
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;

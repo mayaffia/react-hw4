@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
@@ -9,8 +9,9 @@ import {
   TextField,
   FormHelperText,
 } from "@mui/material";
-import { addProduct } from "../../store/productSlice";
+import { addProduct, fetchProducts } from "../../store/productSlice";
 import { RootState } from "../../store/store";
+import { fetchCategories } from "../../store/categorySlice";
 
 const AddProductModal = () => {
   const [open, setOpen] = useState(false);
@@ -26,7 +27,14 @@ const AddProductModal = () => {
   const [priceError, setPriceError] = useState("");
 
   const dispatch = useDispatch();
-  const categories = useSelector((state: RootState) => state.categories);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories())
+  }, [dispatch]);
+  
+  const categories = useSelector((state: RootState) => state.categories.categories);
+  console.log(categories)
 
   const handleOpen = () => setOpen(true);
 
@@ -74,8 +82,9 @@ const AddProductModal = () => {
     }
 
     if (name && description && quantity && price) {
-      const id = Math.random().toString(36).substr(2, 9);
-      dispatch(addProduct({ ...newProduct, id }));
+      dispatch(addProduct({
+        ...newProduct,
+      }));
       handleClose();
     } else {
       alert("Пожалуйста, заполните все обязательные поля.");
